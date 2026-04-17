@@ -1,0 +1,17 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Editores y caches
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Si más adelante usás Node.js / React / Tailwind CLI
+node_modules/
+dist/
+build/
