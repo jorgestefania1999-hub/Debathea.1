@@ -7,12 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// 🔌 MongoDB
+// Conexión MongoDB
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB conectado"))
   .catch(err => console.log(err));
 
-// 📦 Modelo
+// Modelo
 const Message = mongoose.model("Message", {
   user: String,
   text: String,
