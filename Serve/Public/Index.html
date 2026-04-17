@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Debathea MVP</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+body { font-family: Arial; margin:0; background:#eee; }
+header { background:#111; color:#fff; padding:15px; }
+.container { padding:20px; }
+
+.box { background:#fff; padding:15px; margin-bottom:15px; border-radius:10px; }
+
+.messages { height:300px; overflow:auto; background:#fafafa; padding:10px; }
+
+input, button { padding:10px; width:100%; margin-top:10px; }
+
+.turn { font-weight:bold; margin-bottom:10px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <h3>Debathea MVP</h3>
+</header>
+
+<div class="container">
+
+<div class="box">
+  <input id="name" placeholder="Tu nombre">
+  <button onclick="join()">Entrar al debate</button>
+</div>
+
+<div class="box">
+  <div class="turn" id="turn"></div>
+  <div class="messages" id="messages"></div>
+
+  <input id="msg" placeholder="Escribe tu argumento...">
+  <button onclick="send()">Enviar</button>
+</div>
+
+</div>
+
+<script>
+const socket = io();
+
+let myName = "";
+
+function join() {
+  myName = document.getElementById("name").value;
+  socket.emit("join", myName);
+}
+
+function send() {
+  const text = document.getElementById("msg").value;
+  socket.emit("message", text);
+  document.getElementById("msg").value = "";
+}
+
+socket.on("state", (debate) => {
+  const messages = document.getElementById("messages");
+  const turn = document.getElementById("turn");
+
+  messages.innerHTML = "";
+
+  debate.messages.forEach(m => {
+    const p = document.createElement("p");
+    p.innerHTML = `<b>${m.user}:</b> ${m.text}`;
+    messages.appendChild(p);
+  });
+
+  if (debate.users.length > 0) {
+    turn.innerText = "Turno: " + debate.users[debate.turn].name;
+  } else {
+    turn.innerText = "Esperando usuarios...";
+  }
+});
+</script>
+
+</body>
+  </html>
