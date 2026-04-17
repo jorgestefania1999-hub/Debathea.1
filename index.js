@@ -7,12 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// 🔌 Conexión a MongoDB
+// 🔌 MongoDB
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB conectado"))
   .catch(err => console.log(err));
 
-// 📦 Modelo de mensajes
+// 📦 Modelo
 const Message = mongoose.model("Message", {
   user: String,
   text: String,
@@ -34,4 +34,33 @@ io.on("connection", (socket) => {
     io.emit("state", debate);
   });
 
-  socket
+  socket.on("message", async (text) => {
+    const index = debate.users.findIndex(u => u.id === socket.id);
+    if (index !== debate.turn) return;
+
+    const msg = {
+      user: debate.users[index].name,
+      text
+    };
+
+    debate.messages.push(msg);
+
+    await Message.create(msg);
+
+    debate.turn = debate.turn === 0 ? 1 : 0;
+
+    io.emit("state", debate);
+  });
+
+  socket.on("disconnect", () => {
+    debate.users = debate.users.filter(u => u.id !== socket.id);
+    debate.turn = 0;
+    io.emit("state", debate);
+  });
+
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Servidor corriendo en puerto " + PORT);
+});
