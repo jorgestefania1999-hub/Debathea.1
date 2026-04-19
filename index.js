@@ -37,6 +37,7 @@ io.on("connection", (socket) => {
 
     const msg = {
       user: debate.users[index].name,
+      const Debate = require("./models/Debate");
       text
     };
 
